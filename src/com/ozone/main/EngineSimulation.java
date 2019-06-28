@@ -87,6 +87,9 @@ public class EngineSimulation {
 	}
 	
 	public GameStatus start(Engine e1, Engine e2, boolean isDeveloper, boolean showBoard, Board initialBoard){
+		return start(e1, e2, isDeveloper, showBoard, initialBoard, false);
+	}
+	public GameStatus start(Engine e1, Engine e2, boolean isDeveloper, boolean showBoard, Board initialBoard, boolean isConsole){
 		
 		moves = 0;
 		score = 0;
@@ -111,7 +114,7 @@ public class EngineSimulation {
 			if(whiteMove == null || whiteMove.getPieceMoving() < 0){
 				System.out.println("E1: " + e1.getClass().toString() + "\t" + e1.getTeam());
 				System.out.println("E2: " + e2.getClass().toString() + "\t" + e2.getTeam());
-				BoardUtil.display(board);
+				BoardUtil.displayBoard(board, isConsole);
 				System.out.println(moveHistory);
 				System.err.println("White move is null\nBoard status: " + BoardUtil.getBoardStatus(board.getBoard()) + "\nIterations: " + i);
 				System.exit(-1);
@@ -129,7 +132,7 @@ public class EngineSimulation {
 			status = Common.getGameStatus(board, moveHistory, turn, isNoConsecutiveCaptureOrPawnMovement);
 
 			if(showBoard) {
-				BoardUtil.displayBoard(board);
+				BoardUtil.displayBoard(board, isConsole);
 				System.out.println("# " + i + "\tWhite move: " + whiteMove);
 			}
 			if(status != GameStatus.ON_GOING) {
@@ -143,7 +146,7 @@ public class EngineSimulation {
 			if(blackMove == null || blackMove.getPieceMoving() > 0){
 				System.out.println("E1: " + e1.getClass().toString() + "\t" + e1.getTeam());
 				System.out.println("E2: " + e2.getClass().toString() + "\t" + e2.getTeam());
-				BoardUtil.display(board);
+				BoardUtil.displayBoard(board, isConsole);
 				System.out.println(moveHistory);
 				System.err.println("Black move is null\nBoard status: " + BoardUtil.getBoardStatus(board) + "\nIterations: " + i);
 				System.exit(-1);
@@ -159,7 +162,7 @@ public class EngineSimulation {
 			turn = BoardUtil.WHITE;
 			status = Common.getGameStatus(board, moveHistory, turn, isNoConsecutiveCaptureOrPawnMovement);
 			if(showBoard) {
-				BoardUtil.displayBoard(board);
+				BoardUtil.displayBoard(board, isConsole);
 				System.out.println("# " + i + "\tBlack move: " + blackMove);
 			}
 			if(status != GameStatus.ON_GOING) {
