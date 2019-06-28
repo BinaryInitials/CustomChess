@@ -113,14 +113,14 @@ public class Main {
 			}else if(wantsAgainstDefault) {
 				if(engine == null) {
 					System.out.println("Default engine playing against StockFish");
-					engine = new EngineMinMaxNoMateDetectiongMAXDEPTH3(-team); 
+					engine = new EngineMinMaxNoMateDectionMAXDEPTH3(-team); 
 				}
-				Engine default = new EngineNewFastFast(team);
+				Engine defaultengine = new EngineNewFastFast(team);
 				EngineSimulation es = new EngineSimulation();
 				Date tic = new Date();
 				Board board = new Board();
 				board.reset();
-				GameStatus gs = es.start(stockfish, engine, false, true, board, true);
+				GameStatus gs = es.start(defaultengine, engine, false, true, board, true);
 				Date toc = new Date();
 				int time = (int)((toc.getTime() - tic.getTime()));
 				if(gs.equals(GameStatus.BLACK_IS_CHECK_MATE)){
