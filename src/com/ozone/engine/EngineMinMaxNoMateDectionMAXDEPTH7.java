@@ -370,6 +370,14 @@ public class EngineMinMaxNoMateDectionMAXDEPTH7 implements Engine {
 	
 	public int alphaBetaMinMax(Board board, int team, int depth, int alpha, int beta, int maximizing, Move parentMove, List<Move> rootMoves){
 		
+		if(isCheckMate(board, team)){
+			return -(PSEUDO_INFINITE - MAX_DEPTH + depth);
+		}
+		
+		if(isCheckMate(board, -team)){
+			return PSEUDO_INFINITE - MAX_DEPTH + depth;
+		}
+		
 		if(isStaleMate(board, maximizing*team)) {
 			return 0;
 		}

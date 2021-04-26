@@ -446,6 +446,27 @@ public class MoveUtil {
 		return moves;
 	}
 	
+	public static List<Move> getAllGoodMovesForTeam(Board board, int team){
+		List<Move> moves = new ArrayList<Move>();
+		List<Move> checkMoves = new ArrayList<Move>();
+		List<Piece> pieces = BoardUtil.getAllTeamPiecesInPieces(board, team);
+		for(Piece piece : pieces){
+			for(Move move : findAllValidMoves(board, piece)){
+				if(!isBadMove(board, move)){
+					if(isCheck(move.updateBoard(board))){
+						checkMoves.add(move);
+					}else {
+						moves.add(move);
+					}
+				}
+			}
+		}
+		Collections.sort(moves, MoveComparator);
+		Collections.sort(checkMoves, MoveComparator);
+		checkMoves.addAll(moves);
+		return checkMoves;
+	}
+	
 	public static List<Move> getAllMoveForTeam(Board board, int team){
 		List<Move> moves = new ArrayList<Move>();
 		List<Move> checkMoves = new ArrayList<Move>();
@@ -1688,5 +1709,55 @@ public class MoveUtil {
 			}
 		}
 		return maxPiece;
+	}
+	
+	public static List<Move> getFreeCaptures(Board board, int team){
+		List<Move> freeCaptures = new ArrayList<Move>();
+		int captureScore = 0;
+		for(Move move : getAllMoveForTeam(board, team))
+			if(move.getPieceCaptured() != 0){
+				boolean isPieceThreatenedAfterCapture = isPieceThreatenedNew(move.updateBoard(board), move.getPieceAfterMove());
+				if(isPieceThreatenedAfterCapture && Math.abs(move.getPieceMoving()) < Math.abs(move.getPieceCaptured())){
+					freeCaptures.add(move);
+					captureScore = Math.max(captureScore, Math.abs(move.getPieceCaptured()) - Math.abs(move.getPieceMoving()));
+				}else if(!isPieceThreatenedAfterCapture){
+					freeCaptures.add(move);
+					captureScore = Math.max(captureScore, Math.abs(move.getPieceCaptured()));
+				}
+			}
+		
+		List<Move> mostLikelyCaptures = new ArrayList<Move>();
+		for(Move move : freeCaptures){
+			boolean isPieceThreatenedAfterCapture = isPieceThreatenedNew(move.updateBoard(board), move.getPieceAfterMove());
+			if(isPieceThreatenedAfterCapture && Math.abs(move.getPieceCaptured()) - Math.abs(move.getPieceMoving()) == captureScore){
+				mostLikelyCaptures.add(move);
+			}else if(!isPieceThreatenedAfterCapture && Math.abs(move.getPieceCaptured()) == captureScore){
+				mostLikelyCaptures.add(move);
+			}
+		}
+		
+		return mostLikelyCaptures;
+	}
+	
+	public static boolean isFreeCapture(Board board, Move move){
+		if(move.getPieceCaptured() == 0)
+			return false;
+		if(isPieceThreatenedNew(move.updateBoard(board), move.getPieceAfterMove()) && Math.abs(move.getPieceCaptured()) > Math.abs(move.getPieceMoving()))
+			return true;
+		else if(!isPieceThreatenedNew(move.updateBoard(board), move.getPieceAfterMove()))
+			return true;
+		return false;
+	}
+	
+	public static List<Move> filterBadMoves(Board board, List<Move> moves){
+		List<Move> goodMoves = new ArrayList<Move>();
+		for(Move move : moves)
+			if(!isBadMove(board, move))
+				goodMoves.add(move);
+		return goodMoves;
+	}
+	
+	public static boolean isBadMove(Board board, Move move){
+		return Math.abs(move.getPieceCaptured()) < (isPieceThreatenedNew(move.updateBoard(board), move.getPieceAfterMove()) ? Math.abs(move.getPieceMoving()) : 0);
 	}
 }

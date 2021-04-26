@@ -29,7 +29,7 @@ import com.ozone.mate.KingQueen;
 import com.ozone.movements.BoardUtil;
 import com.ozone.movements.MoveUtil;
 
-public class EngineMinMaxNoMateDectionMAXDEPTH5 implements Engine {
+public class EngineMinMaxNoMateDectionAPI implements Engine {
 	public static final int KING_VALUE = 1000000;
 	public static final int MAX_DEPTH = 5;
 	
@@ -40,10 +40,8 @@ public class EngineMinMaxNoMateDectionMAXDEPTH5 implements Engine {
 	private int team;
 	private static HashMap<Move, Integer> nodeMap = new HashMap<Move, Integer>();
 	private static HashMap<Integer, List<Move>> moveMap = new HashMap<Integer, List<Move>>();
-	private boolean isDeveloper = false;
-	public EngineMinMaxNoMateDectionMAXDEPTH5(int team){
+	public EngineMinMaxNoMateDectionAPI(int team){
 		this.team = team;
-		this.isDeveloper = false;
 		nodeMap = new HashMap<Move, Integer>();
 		moveMap = new HashMap<Integer, List<Move>>();
 		openings = team > BoardUtil.SPACE ? new LibraryLoader(BoardUtil.WHITE, true) : new LibraryLoader(BoardUtil.BLACK, true);
@@ -80,8 +78,7 @@ public class EngineMinMaxNoMateDectionMAXDEPTH5 implements Engine {
 	}
 
 	@Override
-	public Move findMove(Board board, int iteration, boolean isConsole, boolean isDeveloperMode, List<Move> moveHistory) {
-		this.isDeveloper = isDeveloperMode;
+	public Move findMove(Board board, int iteration, boolean isConsole, boolean isDeveloper, List<Move> moveHistory) {
 		avgNps = 0;
 		totalTime = 0;
 		nodeMap.clear();
@@ -107,31 +104,17 @@ public class EngineMinMaxNoMateDectionMAXDEPTH5 implements Engine {
 			Board newBoard = move.updateBoard(board);
 			if(isCheckMate(newBoard, -team)) {
 				move.setScore(50000000);
-				if(isDeveloperMode) {
-					System.out.println(move + "\tMATE IN 1");
-				}
 				mateFound = true;
 				break;
 			}
 			if(!mateIn2Found) {
 				if(isMyNextMovePuttingHimToCheckMate(newBoard, team)) {
-					if(isDeveloperMode) {
-						System.out.println(move + "\tMATE IN 2");
-					}
 					move.setScore(25000000);
 					mateIn2Found = true;
 					mateFound = true;
 				}else if(isForcedMate(newBoard, team, 0, false)) {
-					if(isDeveloperMode) {
-						System.out.println(move + "\tMATE IN 3+");
-					}
 					move.setScore(12500000);
 					mateFound = true;
-//				}else if(isForcedMate(newBoard, team, 0, true)) {
-//					if(isDeveloperMode) {
-//						System.out.println(move + "\tMATE IN 3+?");
-//					}
-//					move.setScore(9000000);
 				}
 			}
 		}
@@ -160,9 +143,6 @@ public class EngineMinMaxNoMateDectionMAXDEPTH5 implements Engine {
 					checkScore = Math.min(checkScore, thisCheckScore);
 				}
 				if(checkScore > 0) {
-					if(isDeveloperMode) {
-						System.out.println(move + "\tMATE IN " + (3+(1000000-checkScore))/2);
-					}
 					move.setScore(move.getScore() + checkScore);
 					mateMoves.add(move);
 				}
@@ -192,9 +172,6 @@ public class EngineMinMaxNoMateDectionMAXDEPTH5 implements Engine {
 							}
 						}
 						if(checkScore < 0) {
-							if(isDeveloperMode) {
-								System.out.println(move + "\tMATE IN " + (3+(1000000+checkScore))/2 + " via " + oppMove);
-							}
 							bestOppMoveScore = Math.min(checkScore, bestOppMoveScore);
 						}
 					}
@@ -218,18 +195,6 @@ public class EngineMinMaxNoMateDectionMAXDEPTH5 implements Engine {
 				return Collections.max(oppMateMoves, CustomComparator);
 			}
 		}
-		
-//		int mateScore = keepCheckingUntilMate(board, team);
-//		if(mateScore > 0 && mateMoveMap.get(mateScore) != null){
-//			moves = mateMoveMap.get(mateScore);
-//			for(Move move : moves){
-//				if(isDeveloperMode) {
-//					System.out.println(move + "\tMATE IN " + (1+(1000000-mateScore))/2);
-//				}
-//				move.setScore(move.getScore() + mateScore);
-//			}
-//			return Collections.max(moves, CustomComparator);
-//		}
 		
 		List<Piece> pieces = BoardUtil.getAllTeamPieces(board, team);
 		List<Piece> oppPieces = BoardUtil.getAllTeamPieces(board, -team);
@@ -322,9 +287,6 @@ public class EngineMinMaxNoMateDectionMAXDEPTH5 implements Engine {
 				score = score - getValueWithSign(move.getPieceAfterMove())/20;
 			}
 			
-			if(isDeveloper) {
-				System.out.println(move + "\t" + score);
-			}
 			move.setScore(move.getScore() + score);
 		}
 		
@@ -427,9 +389,6 @@ public class EngineMinMaxNoMateDectionMAXDEPTH5 implements Engine {
 					moveMap.get(bestScore).add(move);
 					avgNps = avgNps + (1000*localNode)/((double)moves.size()*time);
 					totalTime = totalTime + time;
-					if(isDeveloper){
-						System.out.println(move + "\t" + bestScore + "\t" + localNode + "\t" + time + "\t" + (1000*localNode)/time + "\tALPHA: " + alpha);
-					}
 				}
 				
 				v = Math.max(v, bestScore);

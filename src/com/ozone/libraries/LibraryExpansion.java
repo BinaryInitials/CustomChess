@@ -112,7 +112,7 @@ public class LibraryExpansion {
 	}
 	
 	private static void addMovesToOpeningLibrary(Board board, Set<Move> moves){
-		if(openings.get(board) == null){
+		if(openings.get(Converters.boardToFenSimplified(board)) == null){
 			openings.put(Converters.boardToFenSimplified(board), moves);
 		}else{
 			openings.get(Converters.boardToFenSimplified(board)).addAll(moves);

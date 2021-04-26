@@ -449,4 +449,16 @@ public class TestBlunders {
 		Move doNotMoveThat = new Move(-BoardUtil.KNIGHT, "D7E5");
 		assertNotEquals(doNotMoveThat, move);
 	}
+	
+	@Test
+	public void testNotThreatenedBecauseAttackerIsPinned(){
+		Board board = new Board("5rk1/5ppp/6n1/1p3N2/p7/2B1Q3/5PPP/5RK1 w - - 0 1");
+		Move expected = new Move(board, "e3h6");
+		Move move = ew.findMove(board);
+		System.out.println(move);
+		Engine e = new EngineMinMaxNoMateDectionMAXDEPTH5(1);
+		Move mmmove = e.findMove(board);
+		System.out.println(mmmove);
+		System.out.println("Is threatened: " + MoveUtil.isPieceThreatenedNew(expected.updateBoard(board), new Piece(board.getPiece("h6"), "h6")));
+	}
 }
