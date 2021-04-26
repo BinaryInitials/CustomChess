@@ -1,5 +1,5 @@
 #!/bin/bash
-classpath="com.ozone.common.Board.ChessAPI"
+classpath="com.ozone.main.ChessAPI"
 directories=`ls`
 src="src"
 bin="bin"
