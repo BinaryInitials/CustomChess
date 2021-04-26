@@ -1,6 +1,7 @@
 package com.ozone.main;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import com.ozone.common.Board;
@@ -36,7 +37,15 @@ public class Main {
 			boolean wantsMinMax3 = false;
 			boolean wantsMinMax1 = false;
 			boolean wantsHard = false;
+			boolean wantsAgainstStockFish = false;
+			boolean wantsAgainstDefault = false;
 			for(String arg : args){
+				if(arg.toLowerCase().matches(".*stockfish.*")) {
+					wantsAgainstStockFish = true;
+				}
+				if(arg.toLowerCase().matches(".*default.*")) {
+					wantsAgainstDefault = true;
+				}
 				if(arg.toLowerCase().matches("^.*(minmax7).*$")){
 					wantsMinMax7 = true;
 				}
@@ -58,6 +67,7 @@ public class Main {
 					team = BoardUtil.BLACK;
 				}
 			}
+			
 			if(wantsMinMax7){
 				System.out.println("Loading Minemax MAXDEPTH=7");
 				engine = new EngineMinMaxNoMateDectionMAXDEPTH7(-team);
@@ -77,6 +87,53 @@ public class Main {
 				System.out.println("Loading default engine");
 				engine = new EngineNewFastFast(-team);
 			}
+			
+			if(wantsAgainstStockFish) {
+				if(engine == null) {
+					System.out.println("Default engine playing against StockFish");
+					engine = new EngineNewFastFast(-team); 
+				}
+				Engine stockfish = new EngineStrong(team);
+				EngineSimulation es = new EngineSimulation();
+				Date tic = new Date();
+				Board board = new Board();
+				board.reset();
+				GameStatus gs = es.start(stockfish, engine, false, true, board, true);
+				Date toc = new Date();
+				int time = (int)((toc.getTime() - tic.getTime()));
+				if(gs.equals(GameStatus.BLACK_IS_CHECK_MATE)){
+					System.out.println("White wins.");
+				}else if(gs.equals(GameStatus.WHITE_IS_CHECK_MATE)){
+					System.out.println("Black wins");
+				}else {
+					System.out.println("Stale mate or some other tie: " + gs.toString());
+				}
+				System.out.println("Elapsed time: " + time);
+				System.exit(1);
+			}else if(wantsAgainstDefault) {
+				if(engine == null) {
+					System.out.println("Default engine playing against StockFish");
+					engine = new EngineMinMaxNoMateDectionMAXDEPTH3(-team); 
+				}
+				Engine defaultengine = new EngineNewFastFast(team);
+				EngineSimulation es = new EngineSimulation();
+				Date tic = new Date();
+				Board board = new Board();
+				board.reset();
+				GameStatus gs = es.start(defaultengine, engine, false, true, board, true);
+				Date toc = new Date();
+				int time = (int)((toc.getTime() - tic.getTime()));
+				if(gs.equals(GameStatus.BLACK_IS_CHECK_MATE)){
+					System.out.println("White wins.");
+				}else if(gs.equals(GameStatus.WHITE_IS_CHECK_MATE)){
+					System.out.println("Black wins");
+				}else {
+					System.out.println("Stale mate or some other tie: " + gs.toString());
+				}
+				System.out.println("Elapsed time: " + time);
+				System.exit(1);
+			}
+			
 		}else {
 			engine = new EngineMinMaxNoMateDectionMAXDEPTH5(-team);
 		}
